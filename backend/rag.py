@@ -3,7 +3,7 @@ import logging
 import base64
 
 print("NEW RAG FILE LOADED")
-
+ 
 # LOGGING SETUP
 logging.basicConfig(
     level=logging.INFO,
