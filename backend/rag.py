@@ -6,7 +6,7 @@ print("NEW RAG FILE LOADED")
  
 # LOGGING SETUP
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.INFO, 
     format="%(asctime)s | %(levelname)s | %(message)s",
     datefmt="%H:%M:%S"
 )
