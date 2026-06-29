@@ -73,7 +73,7 @@ export default function App() {
     return <Login onAuth={handleAuth} />;
   }
 
-  // ── CHAT ──────────────────────────────────────────────────────────────────
+  //CHAT
   const ask = async () => {
     if (!query.trim() || loading) return;
     setLoading(true);
