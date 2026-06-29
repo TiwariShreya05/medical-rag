@@ -4,7 +4,7 @@ import PatientInfoCard from "./PatientInfoCard";
 import Login from "./Login";
 import MyReports from "./MyReports";
 
-const BASE = "http://127.0.0.1:8000";
+const BASE = "http://127.0.0.1:8000"
 
 export default function App() {
   // AUTH
