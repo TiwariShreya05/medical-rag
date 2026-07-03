@@ -14,7 +14,7 @@ SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret-change-this-in-real-deploym
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_HOURS = 24 * 7
 
-security = HTTPBearer(
+security = HTTPBearer()
 
 
 def hash_password(password: str) -> str:
