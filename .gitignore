@@ -6,7 +6,7 @@
 # Testing
 /coverage
 
-# Productio
+# Production
 /build
 
 # Environment variables
