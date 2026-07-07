@@ -15,6 +15,7 @@
 .env.*
 backend/.env
 
+
 # Misc
 .DS_Store
 *.log
