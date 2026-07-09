@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Optional
 import json 
 import logging 
-import 
+import os
 import io
 from logging.handlers import TimedRotatingFileHandler
 import rag
