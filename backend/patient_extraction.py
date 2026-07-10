@@ -16,6 +16,7 @@ import logging
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
+
 logger = logging.getLogger("medical_rag")
 
 
