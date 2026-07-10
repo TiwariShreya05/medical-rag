@@ -38,7 +38,7 @@ NAME_PATTERNS = [
 ]
 AGE_PATTERNS = [
     r"Age\s*[:\-]\s*(\d{1,3})\s*(?:Y|Yrs|Years)?",
-    r"(\d{1,3})\s*(?:Y|Yrs|Years)\s*/\s*(?:M|F|Male|Female)",  # "45 Y / M" style
+    r"(\d{1,3})\s*(?:Y|Yrs|Years)\s*/\s*(?:M|F|Male|Female)",  
 ]
 SEX_PATTERNS = [
     r"(?:Sex|Gender)\s*[:\-]\s*(Male|Female|M|F|Other)\b",
