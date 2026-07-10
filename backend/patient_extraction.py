@@ -20,6 +20,7 @@ from pydantic import BaseModel, Field
 logger = logging.getLogger("medical_rag")
 
 
+
 class PatientInfo(BaseModel):
     name: Optional[str] = None
     age: Optional[int] = None
