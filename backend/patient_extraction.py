@@ -24,7 +24,7 @@ logger = logging.getLogger("medical_rag")
 class PatientInfo(BaseModel):
     name: Optional[str] = None
     age: Optional[int] = None
-    sex: Optional[str] = None          # "Male" / "Female" / "Other"
+    sex: Optional[str] = None         
     height_cm: Optional[float] = None
     weight_kg: Optional[float] = None
     blood_group: Optional[str] = None
