@@ -17,6 +17,7 @@ print("MYSQL_USER =", MYSQL_USER)
 print("MYSQL_PASSWORD =", repr(MYSQL_PASSWORD)) 
 print("MYSQL_DATABASE =", MYSQL_DATABASE)
 
+
 def _connect(use_database=True):
     config = {
         "host": MYSQL_HOST,
