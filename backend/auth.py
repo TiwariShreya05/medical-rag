@@ -43,7 +43,6 @@ def decode_access_token(token: str):
     except jwt.PyJWTError:
         return None
 
-
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
     payload = decode_access_token(credentials.credentials)
     if payload is None:
