@@ -11,7 +11,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import database
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret-change-this-in-real-deployment")
 ALGORITHM = "HS256"
-TOKEN_EXPIRE_HOURS = 24 * 7
+TOKEN_EXPIRE_HOURS = 24 * 
 
 security = HTTPBearer()
 
