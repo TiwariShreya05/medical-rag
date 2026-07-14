@@ -50,6 +50,7 @@ def generate_report_pdf(report: dict) -> bytes:
         fontSize=10, leading=15,
         textColor=colors.HexColor("#333333"),
     )
+    
     disclaimer_style = ParagraphStyle(
         "Disclaimer", parent=styles["Normal"],
         fontSize=9, textColor=colors.HexColor("#888888"),
