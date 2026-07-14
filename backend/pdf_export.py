@@ -38,6 +38,7 @@ def generate_report_pdf(report: dict) -> bytes:
         fontSize=10, textColor=colors.HexColor("#555555"),
         spaceAfter=12,
     )
+    
     section_style = ParagraphStyle(
         "Section", parent=styles["Heading2"],
         fontSize=12, textColor=colors.HexColor("#1a1a2e"),
