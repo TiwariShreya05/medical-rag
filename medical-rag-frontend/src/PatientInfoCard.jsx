@@ -122,6 +122,7 @@ const styles = {
     fontSize: "18px",
     fontWeight: 600,
   },
+  
   iconBtn: {
     background: "transparent",
     border: "1px solid #333",
