@@ -1,13 +1,7 @@
 import { useState } from "react";
 import { Pencil, Check } from "lucide-react";
 
-/**
- * Shows extracted patient info as editable fields. Call onConfirm(cleanedInfo)
- * when the user clicks "Confirm & Analyze".
- *
- * Usage:
- *   <PatientInfoCard patientInfo={extractedInfo} onConfirm={(info) => analyze(info)} />
- */
+
 export default function PatientInfoCard({ patientInfo, onConfirm }) {
   const [editing, setEditing] = useState(true); // open in edit mode right after extraction
   const [form, setForm] = useState({
