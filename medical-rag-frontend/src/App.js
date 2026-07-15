@@ -542,7 +542,6 @@ export default function App() {
 
       {/* ── MY REPORTS TAB ── */}
       {tab === "history" && <MyReports token={token} />}
-
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         * { box-sizing: border-box; }
