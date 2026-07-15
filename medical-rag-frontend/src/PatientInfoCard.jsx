@@ -110,6 +110,7 @@ const styles = {
     marginBottom: "20px",
     color: "#f5f5f5",
   },
+  
   header: {
     display: "flex",
     justifyContent: "space-between",
