@@ -117,6 +117,7 @@ const styles = {
     alignItems: "center",
     marginBottom: "14px",
   },
+  
   title: {
     fontSize: "18px",
     fontWeight: 600,
