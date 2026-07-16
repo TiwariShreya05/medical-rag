@@ -36,6 +36,7 @@ class PatientInfo(BaseModel):
 NAME_PATTERNS = [
     r"(?:Patient\s*Name|Name)\s*[:\-]\s*([^\n\r]{2,40})",
 ]
+
 AGE_PATTERNS = [
     r"Age\s*[:\-]\s*(\d{1,3})\s*(?:Y|Yrs|Years)?",
     r"(\d{1,3})\s*(?:Y|Yrs|Years)\s*/\s*(?:M|F|Male|Female)",  
