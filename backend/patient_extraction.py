@@ -45,6 +45,7 @@ SEX_PATTERNS = [
     r"(?:Sex|Gender)\s*[:\-]\s*(Male|Female|M|F|Other)\b",
     r"\d{1,3}\s*(?:Y|Yrs|Years)?\s*/\s*(M|F|Male|Female)\b",
 ]
+
 HEIGHT_PATTERNS = [
     r"Height\s*[:\-]\s*(\d{2,3}(?:\.\d+)?)\s*cm",
 ]
