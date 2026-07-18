@@ -77,6 +77,7 @@ export default function MyReports({ token }) {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
+      
       if (!res.ok) throw new Error();
       setReports((prev) => prev.filter((r) => r.id !== reportId));
       setConfirmDeleteId(null);
