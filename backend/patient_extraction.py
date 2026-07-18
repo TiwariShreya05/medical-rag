@@ -1,8 +1,6 @@
 """
 Patient info extraction module for Medical RAG Chatbot.
 
-Save this as its OWN file: backend/patient_extraction.py (next to main.py).
-Do NOT paste this into main.py — main.py just imports from it.
 
 Strategy:
 1. Try regex-based extraction first (fast, free, works for most printed lab reports).
@@ -16,27 +14,30 @@ import logging
 from typing import Optional, List
 from pydantic import BaseModel, Field
 
+# Import rag module for token tracking
+import rag
+
 logger = logging.getLogger("medical_rag")
 
 
 class PatientInfo(BaseModel):
     name: Optional[str] = None
     age: Optional[int] = None
-    sex: Optional[str] = None          # "Male" / "Female" / "Other"
+    sex: Optional[str] = None          
     height_cm: Optional[float] = None
     weight_kg: Optional[float] = None
     blood_group: Optional[str] = None
     allergies: List[str] = Field(default_factory=list)
 
 
-# ---------- Regex extraction ----------
+#Regex extraction
 
 NAME_PATTERNS = [
     r"(?:Patient\s*Name|Name)\s*[:\-]\s*([^\n\r]{2,40})",
 ]
 AGE_PATTERNS = [
     r"Age\s*[:\-]\s*(\d{1,3})\s*(?:Y|Yrs|Years)?",
-    r"(\d{1,3})\s*(?:Y|Yrs|Years)\s*/\s*(?:M|F|Male|Female)",  # "45 Y / M" style
+    r"(\d{1,3})\s*(?:Y|Yrs|Years)\s*/\s*(?:M|F|Male|Female)",
 ]
 SEX_PATTERNS = [
     r"(?:Sex|Gender)\s*[:\-]\s*(Male|Female|M|F|Other)\b",
@@ -102,7 +103,7 @@ def extract_patient_info_regex(text: str) -> PatientInfo:
     )
 
 
-# ---------- Gemini fallback for fields regex missed ----------
+#Gemini fallback for fields regex missed
 
 def _missing_fields(info: PatientInfo) -> List[str]:
     missing = []
@@ -125,9 +126,18 @@ def _missing_fields(info: PatientInfo) -> List[str]:
 
 def extract_patient_info_llm(text: str, missing: List[str], gemini_client, model: str = "gemini-2.5-flash") -> dict:
     """
-    gemini_client: pass rag.gemini_client (the same client your final analysis
-    prompt already uses via rag.gemini_client.models.generate_content_stream).
-    This uses the non-streaming counterpart since we just need one JSON blob back.
+    Extract missing patient fields via Gemini.
+    
+    Args:
+        text: Report text to extract from
+        missing: List of field names still needed
+        gemini_client: pass rag.gemini_client (the same client your final analysis
+                      prompt already uses via rag.gemini_client.models.generate_content_stream).
+                      This uses the non-streaming counterpart since we just need one JSON blob back.
+        model: Gemini model name
+    
+    Captures real usage from Gemini response and reports via rag._record_usage()
+    so it folds into the request's running total.
     """
     prompt = f"""Extract ONLY the following patient fields from the medical report
 text below: {", ".join(missing)}.
@@ -143,16 +153,32 @@ Report text:
 """
     try:
         response = gemini_client.models.generate_content(model=model, contents=prompt)
+        
+        # Capture Gemini usage
+        usage = getattr(response, "usage_metadata", None)
+        if usage:
+            rag._record_usage(
+                prompt_tokens=getattr(usage, "prompt_token_count", 0) or 0,
+                completion_tokens=getattr(usage, "candidates_token_count", 0) or 0,
+            )
+            logger.info(f"[PATIENT_EXTRACTION] Gemini usage recorded | prompt={getattr(usage, 'prompt_token_count', 0)} | completion={getattr(usage, 'candidates_token_count', 0)}")
+        
         raw = response.text.strip()
         raw = re.sub(r"^```json|```$", "", raw, flags=re.MULTILINE).strip()
         return json.loads(raw)
     except Exception as e:
-        logger.warning(f"LLM patient-info fallback failed: {e}")
+        logger.warning(f"[PATIENT_EXTRACTION] LLM patient-info fallback failed: {e}")
         return {}
 
 
 def extract_patient_info(text: str, gemini_client=None) -> PatientInfo:
-    """Main entry point. Call this right after OCR produces report text."""
+    """
+    Main entry point. Call this right after OCR produces report text.
+    
+    1. Try regex first (fast, free)
+    2. For any missing fields, call Gemini (usage tracked)
+    3. Return complete PatientInfo
+    """
     info = extract_patient_info_regex(text)
     missing = _missing_fields(info)
 

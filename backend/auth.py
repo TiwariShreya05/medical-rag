@@ -10,7 +10,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 import database
 
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret-change-this-in-real-deployment")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret-change-this-in-real-deployment")   
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_HOURS = 24 * 7
 
@@ -46,11 +46,21 @@ def decode_access_token(token: str):
 
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
+    """
+    Extract and validate JWT token, return user dict with proper user_id key.
+    """
     payload = decode_access_token(credentials.credentials)
     if payload is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+    
     username = payload.get("sub")
     user = database.get_user_by_username(username)
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+    
+    # Make sure user_id is available for routes that expect it
+    # (database.get_user_by_username returns 'id', but we map it to 'user_id' for consistency)
+    if 'id' in user and 'user_id' not in user:
+        user['user_id'] = user['id']
+    
     return user

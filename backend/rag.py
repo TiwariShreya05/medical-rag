@@ -1,6 +1,12 @@
 import os
+import re
 import logging
 import base64
+import requests
+import contextvars
+
+from dotenv import load_dotenv
+load_dotenv()
 
 print("NEW RAG FILE LOADED")
 
@@ -13,7 +19,50 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
-from dotenv import load_dotenv
+# TOKEN USAGE TRACKING
+# ---------------------------------------------------------------
+# Real (not estimated) token counts, pulled from Gemini/Groq's own
+# usage metadata. Uses a ContextVar instead of a plain global so that
+# concurrent requests (FastAPI runs sync routes in separate threads)
+# each get their own isolated running total instead of stepping on
+# each other's numbers.
+# ---------------------------------------------------------------
+
+_token_usage_ctx: contextvars.ContextVar = contextvars.ContextVar("token_usage", default=None)
+
+
+def start_usage_tracking():
+    """Call once at the top of an endpoint, before any LLM work happens,
+    to begin accumulating real usage for this request."""
+    _token_usage_ctx.set({"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0})
+
+
+def get_tracked_usage() -> dict:
+    """Call at the end of a request to get everything accumulated so far —
+    covers every generate_with_retry / generate_with_groq / grounded-search
+    call made anywhere during that request, including nested ones like
+    query expansion or page-index synthesis."""
+    usage = _token_usage_ctx.get()
+    if usage is None:
+        return {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+    return dict(usage)
+
+
+def record_external_usage(prompt_tokens: int = 0, completion_tokens: int = 0):
+    """For callers outside this file (main.py) that consume a Gemini/Groq
+    STREAM directly themselves and read usage off the final chunk — lets
+    them fold that into the same running total as everything else."""
+    _record_usage(prompt_tokens, completion_tokens)
+
+
+def _record_usage(prompt_tokens: int = 0, completion_tokens: int = 0):
+    usage = _token_usage_ctx.get()
+    if usage is None:
+        return  # no active tracking (e.g. startup ingestion) — just ignore
+    usage["prompt_tokens"] += prompt_tokens or 0
+    usage["completion_tokens"] += completion_tokens or 0
+    usage["total_tokens"] += (prompt_tokens or 0) + (completion_tokens or 0)
+
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
@@ -27,7 +76,7 @@ from sentence_transformers import SentenceTransformer, CrossEncoder
 
 from rank_bm25 import BM25Okapi
 
-load_dotenv()
+
 
 from google import genai
 from google.genai import types
@@ -38,21 +87,99 @@ log.info(f"API KEY FOUND: {api_key[:10] if api_key else 'NONE'}")
 
 gemini_client = genai.Client(api_key=api_key)
 
+# Groq fallback client
+from groq import Groq
+groq_api_key = os.getenv("GROQ_API_KEY")
+groq_client = Groq(api_key=groq_api_key) if groq_api_key else None
+log.info(f"GROQ KEY FOUND: {bool(groq_api_key)}")
 
-def generate_with_retry(model, contents, retries=3, delay=10):
-    """Calls Gemini and retries on transient errors (like 503 overload) before giving up.
-    Returns the response text, or "" if every attempt fails."""
+def generate_with_groq(prompt: str) -> str:
+    if not groq_client:
+        log.warning("Groq client not initialized — no GROQ_API_KEY")
+        return ""
+    try:
+        response = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=4096,
+        )
+
+        usage = getattr(response, "usage", None)
+        if usage:
+            _record_usage(
+                prompt_tokens=getattr(usage, "prompt_tokens", 0) or 0,
+                completion_tokens=getattr(usage, "completion_tokens", 0) or 0,
+            )
+
+        result = response.choices[0].message.content.strip()
+        log.info(f"Groq fallback succeeded | chars={len(result)}")
+        return result
+    except Exception as e:
+        log.warning(f"Groq fallback failed: {e}")
+        return ""
+
+
+def _is_daily_quota_error(error_str: str) -> bool:
+    """
+    Distinguish a DAILY quota exhaustion (won't recover by waiting seconds)
+    from a transient per-minute rate limit (recovers quickly). Gemini's
+    error payload includes a quotaId like
+    'GenerateRequestsPerDayPerProjectPerModel-FreeTier' when it's the daily
+    cap — retrying with backoff against that is pure wasted time.
+    """
+    s = error_str.lower()
+    return "perday" in s.replace(" ", "") or "requests_per_day" in s or "per day" in s
+
+
+def generate_with_retry(model, contents, retries=3):
     import time
+
+    current_model = model
+
     for attempt in range(retries + 1):
         try:
-            response = gemini_client.models.generate_content(model=model, contents=contents)
-            return response.text.strip() if response.text else ""
-        except Exception as e:
-            log.warning(f"Gemini call failed (attempt {attempt + 1}/{retries + 1}) | model={model} | error={e}")
-            if attempt < retries:
-                time.sleep(delay)
-    return ""
+            response = gemini_client.models.generate_content(
+                model=current_model,
+                contents=contents
+            )
 
+            usage = getattr(response, "usage_metadata", None)
+            if usage:
+                _record_usage(
+                    prompt_tokens=getattr(usage, "prompt_token_count", 0) or 0,
+                    completion_tokens=getattr(usage, "candidates_token_count", 0) or 0,
+                )
+
+            return response.text.strip() if response.text else ""
+
+        except Exception as e:
+            error_str = str(e).lower()
+
+            # Rate limit / quota exhausted
+            if "429" in error_str or "quota" in error_str or "exhausted" in error_str:
+                if _is_daily_quota_error(error_str):
+                    # No point retrying — this won't clear until tomorrow.
+                    log.warning(f"Daily quota exhausted for model={current_model} — skipping retries, going straight to Groq.")
+                    break
+
+                wait = (2 ** attempt) * 5  # 5s, 10s, 20s
+                log.warning(f"Rate limit hit (attempt {attempt+1}) | model={current_model} | waiting {wait}s")
+                time.sleep(wait)
+
+            # Overloaded / 503
+            elif "503" in error_str or "overload" in error_str:
+                wait = (2 ** attempt) * 3  # 3s, 6s, 12s
+                log.warning(f"Model overloaded (attempt {attempt+1}) | waiting {wait}s")
+                time.sleep(wait)
+
+            # Any other error — fail fast
+            else:
+                log.error(f"Gemini error (non-retryable): {e}")
+                return generate_with_groq(contents)
+
+    log.error(f"All attempts failed for model={current_model}")
+    log.warning("All Gemini attempts failed — trying Groq fallback...")
+    return generate_with_groq(contents)
 
 # EMBEDDING MODEL
 model = SentenceTransformer("BAAI/bge-small-en-v1.5")
@@ -79,11 +206,63 @@ log.info(f"BASE_DIR: {BASE_DIR}")
 log.info(f"BM25_CACHE_PATH: {BM25_CACHE_PATH}")
 
 
-def get_web_grounded_answer(query: str) -> str:
+def duckduckgo_search(query: str, max_results: int = 5) -> list:
+    """
+    Free, no-API-key web search using DuckDuckGo's HTML endpoint. Used as a
+    real search backend when Gemini's built-in Google Search grounding is
+    unavailable (e.g. quota exhausted) — Groq has no search of its own, so
+    it needs real snippets handed to it, same pattern as the Page Index
+    pipeline feeding Groq real PDF content instead of asking it to "know"
+    things unaided.
+    """
+    try:
+        resp = requests.post(
+            "https://html.duckduckgo.com/html/",
+            data={"q": query},
+            headers={"User-Agent": "Mozilla/5.0 (compatible; MedicalRAGAssistant/1.0)"},
+            timeout=8,
+        )
+        resp.raise_for_status()
+        html = resp.text
+
+        results = []
+        link_pattern = re.compile(
+            r'<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>(.*?)</a>', re.DOTALL
+        )
+        snippet_pattern = re.compile(
+            r'<a[^>]+class="result__snippet"[^>]*>(.*?)</a>', re.DOTALL
+        )
+
+        links = link_pattern.findall(html)
+        snippets = snippet_pattern.findall(html)
+
+        def clean(s):
+            return re.sub(r"<[^>]+>", "", s).strip()
+
+        for i, (url, title) in enumerate(links[:max_results]):
+            snippet = clean(snippets[i]) if i < len(snippets) else ""
+            results.append({
+                "title": clean(title),
+                "url": url,
+                "snippet": snippet,
+            })
+
+        log.info(f"DuckDuckGo search | query={query!r} | results={len(results)}")
+        return results
+
+    except Exception as e:
+        log.warning(f"DuckDuckGo search failed: {e}")
+        return []
+
+
+def get_web_grounded_answer(query: str) -> dict:
     """
     Fallback for when the local PDF knowledge base has nothing good for this
-    query. Uses Gemini's built-in Google Search tool so the model grounds its
-    answer in live web results instead of just guessing from training data.
+    query. Primary path: Gemini's built-in Google Search tool, so the model
+    grounds its answer in live web results. If that fails (e.g. daily quota
+    exhausted), falls back to a real DuckDuckGo search + Groq synthesis —
+    NOT a bare Groq call, since Groq has no search ability and would just
+    hallucinate without real snippets to work from.
     """
     prompt = f"""You are an expert medical and biology assistant. Answer the
 following question clearly and accurately using current, reliable
@@ -95,16 +274,83 @@ Question: {query}
 Answer:"""
     try:
         response = gemini_client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model="gemini-2.5-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
                 tools=[types.Tool(google_search=types.GoogleSearch())]
             ),
         )
-        return response.text.strip() if response.text else ""
+
+        usage = getattr(response, "usage_metadata", None)
+        if usage:
+            _record_usage(
+                prompt_tokens=getattr(usage, "prompt_token_count", 0) or 0,
+                completion_tokens=getattr(usage, "candidates_token_count", 0) or 0,
+            )
+
+        answer_text = response.text.strip() if response.text else ""
+        if not answer_text:
+            raise ValueError("Empty response from Gemini grounded search")
+
+        web_sources = []
+        try:
+            candidate = response.candidates[0] if response.candidates else None
+            grounding_metadata = getattr(candidate, "grounding_metadata", None) if candidate else None
+
+            if grounding_metadata and getattr(grounding_metadata, "grounding_chunks", None):
+                seen_urls = set()
+                for chunk in grounding_metadata.grounding_chunks:
+                    web = getattr(chunk, "web", None)
+                    if web and getattr(web, "uri", None) and web.uri not in seen_urls:
+                        seen_urls.add(web.uri)
+                        web_sources.append({
+                            "title": web.title or web.uri,
+                            "url": web.uri,
+                        })
+        except Exception as meta_err:
+            log.warning(f"Could not parse grounding metadata: {meta_err}")
+
+        log.info(f"Web-grounded answer | answer_chars={len(answer_text)} | sources_found={len(web_sources)}")
+        return {"answer": answer_text, "sources": web_sources}
+
     except Exception as e:
-        log.warning(f"Web-grounded answer failed: {e}")
-        return ""
+        log.warning(f"Web-grounded answer (Gemini) failed: {e} — trying DuckDuckGo + Groq fallback...")
+
+        try:
+            ddg_results = duckduckgo_search(query, max_results=5)
+            if not ddg_results:
+                log.warning("DuckDuckGo search returned nothing — no web fallback available.")
+                return {"answer": "", "sources": []}
+
+            context_text = "\n\n".join(
+                f"[{r['title']}]\n{r['snippet']}" for r in ddg_results if r.get("snippet")
+            )
+
+            synth_prompt = f"""You are an expert medical and biology assistant.
+
+Using ONLY the search result snippets below, answer the question clearly and
+accurately. Use simple language. Synthesize naturally — do not just copy the
+snippets. If this is a medical question, add a brief note to consult a
+doctor for personal medical advice.
+
+Search results:
+{context_text}
+
+Question: {query}
+
+Answer:"""
+
+            answer_text = generate_with_groq(synth_prompt)
+            if not answer_text:
+                return {"answer": "", "sources": []}
+
+            web_sources = [{"title": r["title"], "url": r["url"]} for r in ddg_results]
+            log.info(f"DuckDuckGo+Groq fallback succeeded | answer_chars={len(answer_text)} | sources={len(web_sources)}")
+            return {"answer": answer_text, "sources": web_sources}
+
+        except Exception as fallback_err:
+            log.warning(f"DuckDuckGo+Groq fallback also failed: {fallback_err}")
+            return {"answer": "", "sources": []}
 
 
 def get_client():
@@ -113,66 +359,13 @@ def get_client():
         client = QdrantClient(path=QDRANT_PATH)
     return client
 
-
 def semantic_recursive_split(all_docs):
-    log.info("Stage 1: Semantic chunking...")
-    semantic_splitter = SemanticChunker(hf_embeddings)
-
-    semantic_docs = []
-    for doc in all_docs:
-        semantic_docs.extend(
-            semantic_splitter.create_documents([doc.page_content])
-        )
-    log.info(f"Semantic chunks: {len(semantic_docs)}")
-
-    log.info("Stage 2: Recursive chunking...")
-    recursive_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=150
-    )
-
-    final_chunks = []
-    for doc in semantic_docs:
-        splits = recursive_splitter.create_documents([doc.page_content])
-        final_chunks.extend(splits)
-
-    log.info(f"Final chunks after recursive split: {len(final_chunks)}")
-    return final_chunks
-
-
-def build_vector_db():
-    all_docs = []
-
-    for file in os.listdir(PDF_FOLDER):
-        if file.endswith(".pdf"):
-            loader = PyPDFLoader(os.path.join(PDF_FOLDER, file))
-            docs = loader.load()
-            all_docs.extend(docs)
-
+    log.info("Skipping semantic chunking (too slow for large corpus) — using recursive only...")
     splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
     final_chunks = splitter.split_documents(all_docs)
+    log.info(f"Final chunks: {len(final_chunks)}")
+    return final_chunks
 
-    global bm25, bm25_chunks
-    bm25_chunks = final_chunks
-    tokenized_corpus = [chunk.page_content.lower().split() for chunk in final_chunks]
-    bm25 = BM25Okapi(tokenized_corpus)
-
-    log.info(f"Total chunks created: {len(final_chunks)}")
-    return len(final_chunks)
-
-
-def create_qdrant_collection():
-    client = get_client()
-    client.recreate_collection(
-        collection_name=COLLECTION_NAME,
-        vectors_config=VectorParams(size=384, distance=Distance.COSINE)
-    )
-    return "Collection Created"
-
-
-def generate_embeddings():
-    embedding = model.encode("What is diabetes?")
-    return len(embedding)
 
 
 def ingest_documents():
@@ -193,13 +386,13 @@ def ingest_documents():
                 log.error(str(e))
                 continue
 
-    splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
-    final_chunks = splitter.split_documents(all_docs)
+    final_chunks = semantic_recursive_split(all_docs)
 
     global bm25, bm25_chunks
     bm25_chunks = final_chunks
     tokenized_corpus = [chunk.page_content.lower().split() for chunk in final_chunks]
     bm25 = BM25Okapi(tokenized_corpus)
+
 
     client.recreate_collection(
         collection_name=COLLECTION_NAME,
@@ -249,7 +442,7 @@ Query: {query}
 Context (optional):
 {context_text}
 """
-    refined = generate_with_retry("gemini-2.5-flash-lite", prompt)
+    refined = generate_with_retry("gemini-2.5-flash", prompt)
     if refined:
         log.info(f"Refined query: {refined}")
         return refined
@@ -288,7 +481,7 @@ Return ONLY the improved query.
 Query:
 {query}
 """
-    expanded = generate_with_retry("gemini-2.5-flash-lite", prompt)
+    expanded = generate_with_retry("gemini-2.5-flash", prompt)
     return expanded if expanded else query
 
 
@@ -352,7 +545,7 @@ def search_similar_chunks(query):
     return filtered[:3]
 
 
-def recursive_search(query, max_retries=1, threshold=0.35):
+def recursive_search(query, max_retries=1, threshold=0.75):
     current_query = query
     best_results = []
 
@@ -386,10 +579,12 @@ def get_llm_answer(query, context):
     prompt = f"""
 You are an expert medical and biology assistant.
 
-Use the provided context to answer the user's question.
+Use the provided context to answer the user's question COMPLETELY.
 
 Instructions:
 - First answer the question directly.
+- If asking about a condition/disease: include types, causes, symptoms, treatments, AND precautions.
+- If asking about precautions: provide actionable prevention and management tips.
 - Synthesize information from all relevant passages.
 - Do NOT copy text from the context.
 - Do NOT quote large chunks.
@@ -417,6 +612,138 @@ Answer:
         "but the language model is currently unavailable. "
         "Please check the retrieved chunks below for the supporting evidence."
     )
+
+
+def page_index_generate_answer(query, page_results):
+    """
+    Generate a synthesized answer from Page Index results.
+    Same format as RAG but sourced from direct page lookups.
+    """
+    log.info(f"[PAGE_INDEX] Generating synthesized answer from {len(page_results)} pages")
+
+    context_text = "\n\n".join(p["text"][:1200] for p in page_results[:3])
+
+    prompt = f"""
+You are an expert medical and biology assistant.
+
+Use the provided context to answer the user's question COMPLETELY.
+
+Instructions:
+- First answer the question directly.
+- If asking about a condition/disease: include types, causes, symptoms, treatments, AND precautions.
+- If asking about precautions: provide actionable prevention and management tips.
+- Synthesize information from all relevant passages.
+- Do NOT copy text from the context.
+- Do NOT quote large chunks.
+- Ignore unrelated information.
+- Explain concepts clearly and completely.
+- Use bullet points when useful.
+- If the context contains the answer, provide a complete educational response.
+- If the answer is not fully available in the context, say what is known and mention the limitation.
+- Never mention retrieved chunks or document passages.
+
+Context:
+{context_text}
+
+Question:
+{query}
+
+Answer:
+"""
+
+    try:
+        answer = generate_with_retry("gemini-2.5-flash", prompt)
+        if answer:
+            log.info(f"[PAGE_INDEX] Answer generated: {len(answer)} characters")
+            return answer
+    except Exception as e:
+        log.error(f"[PAGE_INDEX] Answer generation failed: {e}")
+
+    return "Could not generate answer from document pages."
+
+
+def page_index_search(query):
+    """
+    PAGE INDEX: Generate full synthesized answer using direct page lookups.
+    Returns: Complete answer from page index chunks.
+
+    If no pages found locally, falls back to Google Search (like RAG).
+    """
+    log.info(f"[PAGE_INDEX] Searching query: {query}")
+
+    query_embedding = model.encode(query, normalize_embeddings=True).tolist()
+
+    client = get_client()
+    vector_results = client.query_points(
+        collection_name=COLLECTION_NAME,
+        query=query_embedding,
+        limit=20,
+        with_payload=True
+    ).points
+
+    all_results = []
+    for hit in vector_results:
+        if hit.payload and hit.score > 0.3:
+            all_results.append({
+                "page": hit.payload.get("page", "Unknown"),
+                "source_file": hit.payload.get("source", "Unknown"),
+                "text": hit.payload.get("text", ""),
+                "score": float(hit.score),
+            })
+
+    bm25_results = bm25_search(query, top_k=20)
+    for chunk in bm25_results:
+        if chunk["score"] > 0.1:
+            all_results.append({
+                "page": chunk.get("page", "Unknown"),
+                "source_file": chunk.get("source_file", "Unknown"),
+                "text": chunk.get("text", ""),
+                "score": chunk.get("score", 0),
+            })
+
+    pages_dict = {}
+    if all_results:
+        for result in all_results:
+            page_key = (result["page"], result["source_file"])
+            if page_key not in pages_dict:
+                pages_dict[page_key] = result
+            else:
+                if result["score"] > pages_dict[page_key]["score"]:
+                    pages_dict[page_key] = result
+
+        sorted_pages = sorted(pages_dict.values(), key=lambda x: x["score"], reverse=True)[:5]
+
+        if sorted_pages:
+            page_index_answer = page_index_generate_answer(query, sorted_pages)
+
+            log.info(f"[PAGE_INDEX] Found {len(sorted_pages)} pages, answer generated")
+
+            return {
+                "query": query,
+                "answer": page_index_answer,
+                "pages": [{"page": p["page"], "file": p["source_file"]} for p in sorted_pages],
+                "source_type": "local",
+            }
+
+    log.info("[PAGE_INDEX] No local pages found — falling back to Google Search")
+    web_result = get_web_grounded_answer(query)
+
+    if web_result["answer"]:
+        return {
+            "query": query,
+            "answer": web_result["answer"],
+            "pages": [],
+            "web_sources": web_result["sources"],
+            "source_type": "web_search",
+        }
+
+    return {
+        "query": query,
+        "answer": "No information found on this topic in the knowledge base or web search.",
+        "pages": [],
+        "web_sources": [],
+        "source_type": "none",
+    }
 
 
 def _rebuild_bm25_only():
@@ -451,8 +778,8 @@ def _rebuild_bm25_only():
                 log.error(str(e))
                 continue
 
-    splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
-    bm25_chunks = splitter.split_documents(all_docs)
+    bm25_chunks = semantic_recursive_split(all_docs)
+
     log.info(f"BM25 chunks built: {len(bm25_chunks)}")
 
     tokenized_corpus = [chunk.page_content.lower().split() for chunk in bm25_chunks]
@@ -487,14 +814,14 @@ def rag_pipeline(query):
 
     if not context or best_score < 0.2:
         log.info("No strong local match in knowledge base — falling back to Google Search via Gemini")
-        web_answer = get_web_grounded_answer(query)
-        if web_answer:
+        web_result = get_web_grounded_answer(query)
+        if web_result["answer"]:
             return {
                 "query": query,
                 "confidence": "Low (web search used)",
-                "answer": web_answer,
+                "answer": web_result["answer"],
                 "retrieved_chunks": 0,
-                "sources": [],
+                "sources": web_result["sources"],
                 "retrieval_details": [],
                 "source_type": "web_search",
             }
@@ -531,21 +858,48 @@ def rag_pipeline(query):
 
 
 def rag_pipeline_stream(query):
+    log.info(f"[DUAL] Starting dual pipeline for query: {query}")
+
     context = recursive_search(query)
     best_score = max((c.get("rerank_score", 0) for c in context), default=0)
 
-    if not context or best_score < 0.2:
-        log.info("No strong local match in knowledge base — falling back to Google Search via Gemini")
-        web_answer = get_web_grounded_answer(query)
-        if web_answer:
-            return {"stream": None, "fallback": web_answer, "context": [], "source_type": "web_search"}
+    if not context:
+        log.info("No results found in knowledge base — falling back to Google Search")
+        web_result = get_web_grounded_answer(query)
+        if web_result["answer"]:
+            page_index_result = page_index_search(query)
+
+            return {
+                "stream": None,
+                "fallback": web_result["answer"],
+                "context": [],
+                "source_type": "web_search",
+                "web_sources": web_result["sources"],
+                "page_index_answer": page_index_result.get("answer"),
+                "page_index_pages": page_index_result.get("pages", []),
+                "page_index_web_sources": page_index_result.get("web_sources", []),
+                "page_index_source_type": page_index_result.get("source_type", "none"),
+            }
         log.warning("Web search fallback also unavailable.")
         return {
             "stream": None,
             "fallback": "No relevant information found in the knowledge base, and web search is currently unavailable.",
             "context": [],
             "source_type": "none",
+            "web_sources": [],
+            "page_index_answer": None,
+            "page_index_pages": [],
+            "page_index_web_sources": [],
+            "page_index_source_type": "none",
         }
+
+    page_index_result = page_index_search(query)
+    page_index_answer = page_index_result.get("answer")
+    page_index_pages = page_index_result.get("pages", [])
+    page_index_web_sources = page_index_result.get("web_sources", [])
+    page_index_source_type = page_index_result.get("source_type", "local")
+
+    log.info(f"[DUAL] Page Index answer ready | type={page_index_source_type} | pages={len(page_index_pages)}")
 
     context_text = "\n\n".join(c["text"][:1200] for c in context[:3])
 
@@ -573,13 +927,40 @@ Answer:
 """
 
     try:
-        response = gemini_client.models.generate_content_stream(model="gemini-2.5-flash-lite", contents=prompt)
-        return {"stream": response, "fallback": None, "context": context, "source_type": "local"}
+        # NOTE: this is a STREAMING call — Gemini doesn't attach
+        # usage_metadata until the stream is fully consumed, and main.py
+        # is what actually iterates these chunks, not this function. So
+        # the caller (main.py) must read chunk.usage_metadata off the
+        # final chunk itself and report it via rag.record_external_usage()
+        # once streaming finishes. See the main.py notes below.
+        response = gemini_client.models.generate_content_stream(model="gemini-2.5-flash", contents=prompt)
+        return {
+            "stream": response,
+            "fallback": None,
+            "context": context,
+            "source_type": "local",
+            "web_sources": [],
+            "page_index_answer": page_index_answer,
+            "page_index_pages": page_index_pages,
+            "page_index_web_sources": page_index_web_sources,
+            "page_index_source_type": page_index_source_type,
+        }
     except Exception as e:
-        log.warning(f"Gemini streaming error: {e}")
-        fallback = "I found relevant information in the documents, but the language model is currently unavailable."
-        return {"stream": None, "fallback": fallback, "context": context, "source_type": "local"}
-
+        error_str = str(e).lower()
+        if "429" in error_str or "quota" in error_str:
+            log.warning("Rate limit on streaming — falling back to non-streaming with Groq")
+            fallback = get_llm_answer(query, context)  # uses generate_with_retry (has Groq fallback!)
+            return {
+                "stream": None,
+                "fallback": fallback,
+                "context": context,
+                "source_type": "local",
+                "web_sources": [],
+                "page_index_answer": page_index_answer,
+                "page_index_pages": page_index_pages,
+                "page_index_web_sources": page_index_web_sources,
+                "page_index_source_type": page_index_source_type,
+            }
 
 #REPORT ANALYSIS FEATURE
 
@@ -659,7 +1040,7 @@ def _extract_text_from_pdf(file_bytes: bytes) -> dict:
     except Exception as e:
         log.error(f"PDF extraction failed: {e}", exc_info=True)
         return {"text": "", "method": "failed"}
-    
+
 
 def _simple_search(query: str, top_k=3) -> list:
     """
@@ -706,14 +1087,13 @@ def _simple_search(query: str, top_k=3) -> list:
 
     except Exception as e:
         log.warning(f"Simple search failed: {e}")
-        return []    
+        return []
 
 
 def analyze_report_toa(report_text: str) -> dict:
     log.info("=== TOA LOOP STARTED ===")
     import time
 
-    # ONE combined call instead of 3 separate calls
     log.info("TOA: Combined THOUGHT + OBSERVATION + SEARCH TERMS in one call")
     combined_prompt = f"""
 You are a medical report analyst. This report may be a blood test, biopsy, pathology, radiology, or any other medical document.
@@ -739,10 +1119,9 @@ SEARCH_TERMS:
 term1, term2, term3
 """
 
-    combined_result = generate_with_retry("gemini-2.5-flash-lite", combined_prompt)
+    combined_result = generate_with_retry("gemini-2.5-flash", combined_prompt)
     log.info(f"Combined TOA result: {len(combined_result)} characters")
 
-    # Parse the 3 sections from the single response
     thought_text = ""
     observation_text = ""
     conditions_raw = ""
@@ -771,7 +1150,6 @@ term1, term2, term3
     search_terms = [t.strip() for t in conditions_raw.split(",") if t.strip()]
     log.info(f"Search terms extracted: {search_terms}")
 
-    # Book search — no query expansion/refinement to save calls
     book_findings = {}
     for term in search_terms[:5]:
         log.info(f"ACTION: searching books for '{term}'")
@@ -790,14 +1168,15 @@ term1, term2, term3
                 log.info(f"Found {len(chunks)} book chunks for '{term}'")
             else:
                 log.info(f"No book chunks found for '{term}' — trying Google Search fallback")
-                web_answer = get_web_grounded_answer(term)
-                if web_answer:
+                web_result = get_web_grounded_answer(term)
+                if web_result["answer"]:
                     book_findings[term] = [
                         {
-                            "text": web_answer[:800],
+                            "text": web_result["answer"][:800],
                             "page": "Web",
                             "source_file": "Google Search",
-                            "rerank_score": 1.0
+                            "rerank_score": 1.0,
+                            "url": web_result["sources"][0]["url"] if web_result["sources"] else None,
                         }
                     ]
                     log.info(f"Google Search fallback used for '{term}'")
@@ -876,7 +1255,7 @@ Instructions:
 Write the full analysis now:
 """
 
-    final_analysis = generate_with_retry("gemini-2.5-flash-lite", final_prompt)
+    final_analysis = generate_with_retry("gemini-2.5-flash", final_prompt)
     if not final_analysis:
         final_analysis = "Analysis generation failed. Please try again."
     log.info(f"Final analysis generated: {len(final_analysis)} characters")
@@ -891,7 +1270,8 @@ Write the full analysis now:
                 sources.append({
                     "page": chunk.get("page"),
                     "file": chunk.get("source_file"),
-                    "term": term
+                    "term": term,
+                    "url": chunk.get("url"),
                 })
 
     log.info(f"=== REPORT ANALYSIS COMPLETE | sources={len(sources)} ===")
