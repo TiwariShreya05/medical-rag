@@ -20,6 +20,7 @@ export default function MyReports({ token }) {
       const res = await fetch(`${BASE}/my-reports`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
       if (!res.ok) throw new Error();
       const data = await res.json();
       setReports(data.reports || []);
