@@ -207,6 +207,7 @@ def _load_tree_from_disk_or_build() -> List[Dict]:
 
 
 def get_tree_index() -> Tuple[List[Dict], np.ndarray]:
+    
     """Returns (tree_index, page_embeddings), built once and cached both in
     memory (for the rest of this process) and on disk (so the NEXT process
     restart doesn't have to re-embed 1000+ pages from scratch, which is what
