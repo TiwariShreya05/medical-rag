@@ -146,6 +146,7 @@ def parse_headings(text: str, page_num: int, file: str) -> List[Dict]:
 
 
 def build_tree_index() -> List[Dict]:
+    
     """Read PDFs once and create a page-level tree structure (with optional
     detected headings for nicer titles). Every page becomes a node — this is
     what guarantees sources/nodes are never empty."""
