@@ -310,8 +310,6 @@ Answer:
 
 
 # STEP 4: BUILD HIERARCHICAL SOURCES FOR THE FRONTEND
-
-
 def build_sources_hierarchy(top_pages: List[Tuple[Dict, float]]) -> Dict:
     hierarchy = {
         "title": "Page Index Sources",
