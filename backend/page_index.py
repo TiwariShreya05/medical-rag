@@ -290,6 +290,7 @@ Using ONLY the provided content, answer this question completely:
 {query}
 
 Instructions:
+
 - Answer in full sentences
 - Be comprehensive
 - Include all relevant types, precautions, symptoms, treatments
