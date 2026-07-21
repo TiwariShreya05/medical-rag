@@ -133,6 +133,7 @@ const s = {
     color: disabled ? "#555" : "#111",
     cursor: disabled ? "not-allowed" : "pointer",
     marginTop: 4,
+    
   }),
   error: {
     border: "1px solid #4a1a1a",
