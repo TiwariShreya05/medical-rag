@@ -57,6 +57,7 @@ export default function Login({ onAuth }) {
         <input
           style={s.input}
           type="password"
+          
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
