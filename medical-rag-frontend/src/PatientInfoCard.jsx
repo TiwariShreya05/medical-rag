@@ -131,6 +131,7 @@ const styles = {
     padding: "6px",
     cursor: "pointer",
   },
+  
   grid: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
