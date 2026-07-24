@@ -158,6 +158,7 @@ const styles = {
     fontSize: "16px",
     color: "#f5f5f5",
   },
+  
   actions: {
     marginTop: "16px",
     display: "flex",
