@@ -13,6 +13,7 @@ export default function App() {
 
   const handleAuth = ({ token, username }) => {
     localStorage.setItem("token", token);
+    
     localStorage.setItem("username", username);
     
     setToken(token);
