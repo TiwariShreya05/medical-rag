@@ -11,6 +11,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
     
     height_cm: patientInfo?.height_cm ?? "",
     weight_kg: patientInfo?.weight_kg ?? "",
+    
     blood_group: patientInfo?.blood_group || "",
     
     allergies: (patientInfo?.allergies || []).join(", "),
