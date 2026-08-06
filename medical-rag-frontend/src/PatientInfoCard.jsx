@@ -7,11 +7,13 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
   const [form, setForm] = useState({
     
     name: patientInfo?.name || "",
+    
     age: patientInfo?.age ?? "",
     sex: patientInfo?.sex || "",
     
     height_cm: patientInfo?.height_cm ?? "",
     weight_kg: patientInfo?.weight_kg ?? "",
+
     
     blood_group: patientInfo?.blood_group || "",
     
