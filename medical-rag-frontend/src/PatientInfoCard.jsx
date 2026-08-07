@@ -12,6 +12,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
     sex: patientInfo?.sex || "",
     
     height_cm: patientInfo?.height_cm ?? "",
+    
     weight_kg: patientInfo?.weight_kg ?? "",
 
     
