@@ -56,6 +56,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
   return (
     <div style={styles.card}>
       <div style={styles.header}>
+        
         <span style={styles.title}>Patient Information</span>
         {!editing && (
           <button style={styles.iconBtn} onClick={() => setEditing(true)}>
