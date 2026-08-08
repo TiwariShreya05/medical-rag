@@ -5,6 +5,7 @@ import { Pencil, Check } from "lucide-react";
 export default function PatientInfoCard({ patientInfo, onConfirm }) {
   
   const [editing, setEditing] = useState(true); // open in edit mode right after extraction
+  
   const [form, setForm] = useState({
     
     name: patientInfo?.name || "",
