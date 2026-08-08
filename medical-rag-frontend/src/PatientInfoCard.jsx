@@ -138,6 +138,7 @@ const styles = {
   
   iconBtn: {
     background: "transparent",
+    
     border: "1px solid #333",
     borderRadius: "6px",
     color: "#ccc",
