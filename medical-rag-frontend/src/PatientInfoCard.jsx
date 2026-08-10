@@ -115,6 +115,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
         </div>
       )}
     </div>
+    
   );
 }
 
