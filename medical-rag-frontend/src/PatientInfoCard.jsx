@@ -182,6 +182,7 @@ const styles = {
   
   value: {
     fontSize: "16px",
+    
     color: "#f5f5f5",
   },
   
