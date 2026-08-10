@@ -49,6 +49,7 @@ backend/logs/
 # Qdrant local storage
 qdrant_db/
 qdrant_db_v2/
+
 qdrant_storage/
 
 # Large files / documents
