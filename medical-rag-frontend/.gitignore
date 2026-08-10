@@ -38,6 +38,7 @@ __pycache__/
 # Virtual environment
 venv/
 env/
+
 .venv/
 
 # Logs
