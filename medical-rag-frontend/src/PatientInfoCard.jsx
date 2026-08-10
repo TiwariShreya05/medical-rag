@@ -186,9 +186,11 @@ const styles = {
   },
   
   actions: {
-    
+
+  
     marginTop: "16px",
     display: "flex",
+    
     justifyContent: "flex-end",
   },
   
