@@ -77,6 +77,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
           <div key={f.key} style={styles.fieldRow}>
             <label style={styles.label}>{f.label}</label>
             {editing ? (
+            
               f.type === "select" ? (
                 <select
                   style={styles.input}
