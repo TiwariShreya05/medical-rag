@@ -208,6 +208,7 @@ const styles = {
     
     padding: "10px 16px",
     fontSize: "14px",
+    
     fontWeight: 600,
     cursor: "pointer",
     
