@@ -114,6 +114,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
           <button style={styles.confirmBtn} onClick={handleConfirm}>
             <Check size={16} /> Confirm & Analyze
           </button>
+          
         </div>
       )}
     </div>
