@@ -214,6 +214,7 @@ const styles = {
     fontSize: "14px",
     
     fontWeight: 600,
+    
     cursor: "pointer",
     
     display: "flex",
