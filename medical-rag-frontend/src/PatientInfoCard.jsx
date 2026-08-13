@@ -51,6 +51,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
     { key: "name", label: "Name", type: "text" },
     { key: "age", label: "Age", type: "number" },
     { key: "sex", label: "Sex", type: "select", options: ["Male", "Female", "Other"] },
+    
     { key: "height_cm", label: "Height (cm)", type: "number" },
     
     { key: "weight_kg", label: "Weight (kg)", type: "number" },
