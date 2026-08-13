@@ -39,6 +39,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
       weight_kg: form.weight_kg ? parseFloat(form.weight_kg) : null,
       blood_group: form.blood_group.trim() || null,
       allergies: form.allergies
+        
         .split(",")
         .map((a) => a.trim())
         .filter(Boolean),
