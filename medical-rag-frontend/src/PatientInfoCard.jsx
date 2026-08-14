@@ -59,6 +59,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
     { key: "weight_kg", label: "Weight (kg)", type: "number" },
     
     { key: "blood_group", label: "Blood Group", type: "text" },
+    
     { key: "allergies", label: "Allergies (comma separated)", type: "text" },
   ];
 
