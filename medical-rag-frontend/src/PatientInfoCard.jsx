@@ -100,6 +100,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
               ) : (
                 <input
                   style={styles.input}
+                  
                   type={f.type}
                   value={form[f.key]}
                   
