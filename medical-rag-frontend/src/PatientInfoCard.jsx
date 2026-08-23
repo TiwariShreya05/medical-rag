@@ -86,6 +86,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
               f.type === "select" ? (
                 <select
                   style={styles.input}
+                  
                   value={form[f.key]}
                   onChange={(e) => handleChange(f.key, e.target.value)}
                 >
