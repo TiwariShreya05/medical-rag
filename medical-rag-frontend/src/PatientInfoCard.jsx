@@ -136,6 +136,7 @@ const styles = {
     padding: "20px",
     
     marginBottom: "20px",
+    
     color: "#f5f5f5",
   },
   
