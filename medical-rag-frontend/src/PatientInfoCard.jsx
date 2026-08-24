@@ -93,6 +93,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
                   <option value="">Select</option>
                   {f.options.map((o) => (
                     <option key={o} value={o}>
+                      
                       {o}
                     </option>
                   ))}
