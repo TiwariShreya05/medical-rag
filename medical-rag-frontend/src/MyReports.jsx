@@ -14,6 +14,7 @@ export default function MyReports({ token }) {
   const [previewReport, setPreviewReport] = useState(null);
   
   const [previewLoading, setPreviewLoading] = useState(false);
+  
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const load = async () => {
