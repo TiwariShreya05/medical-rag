@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 const BASE = "http://127.0.0.1:8000";
 
 export default function MyReports({ token }) {
+  
   const [reports, setReports] = useState([]);
   
   const [loading, setLoading] = useState(true);
