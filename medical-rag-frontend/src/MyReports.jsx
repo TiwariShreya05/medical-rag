@@ -92,6 +92,7 @@ export default function MyReports({ token }) {
       if (!res.ok) throw new Error();
       
       setReports((prev) => prev.filter((r) => r.id !== reportId));
+      
       setConfirmDeleteId(null);
       if (previewReport?.id === reportId) setPreviewReport(null);
     } catch {
