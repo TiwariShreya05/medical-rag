@@ -127,6 +127,7 @@ export default function MyReports({ token }) {
   if (loading) return <div style={s.muted}>Loading your reports…</div>;
   
   if (error) return <div style={s.error}>{error}</div>;
+  
   if (reports.length === 0) return <div style={s.muted}>No reports analyzed yet.</div>;
 
   return (
