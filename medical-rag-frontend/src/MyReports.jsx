@@ -81,6 +81,7 @@ export default function MyReports({ token }) {
   };
 
   const deleteReport = async (reportId) => {
+    
     setDeletingId(reportId);
     try {
       const res = await fetch(`${BASE}/my-reports/${reportId}`, {
