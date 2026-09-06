@@ -255,6 +255,7 @@ export default function MyReports({ token }) {
                       ? JSON.parse(previewReport.search_terms)
                       : previewReport.search_terms;
                     return terms.length > 0 ? (
+                      
                       <div style={s.section}>
                         <div style={s.sectionLabel}>Searched for</div>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
