@@ -139,6 +139,7 @@ export default function MyReports({ token }) {
           onClick={() => openPreview(r.id)}
           onMouseEnter={e => e.currentTarget.style.borderColor = "#555"}
           onMouseLeave={e => e.currentTarget.style.borderColor = "#2a2a2a"}
+          
         >
           <div style={s.row}>
             <div>
