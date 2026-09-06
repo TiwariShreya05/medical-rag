@@ -144,6 +144,7 @@ export default function MyReports({ token }) {
           <div style={s.row}>
             <div>
               <div style={s.title}>{r.patient_info?.name || r.filename || "Report"}</div>
+              
               <div style={s.meta}>
                 {r.patient_info?.age ? `Age ${r.patient_info.age}` : ""}
                 {r.patient_info?.age && r.created_at ? " · " : ""}
