@@ -239,6 +239,7 @@ async def analyze_report(file: UploadFile = File(...)):
         else:
             logger.warning(f"Report analysis failed | error={result.get('error')}")
         return result
+        
     except Exception as e:
         logger.error(f"Unexpected error in /analyze-report | error={e}", exc_info=True)
         return {"success": False, "error": f"Server error: {str(e)}"}
