@@ -18,6 +18,7 @@ import io
 
 from logging.handlers import TimedRotatingFileHandler
 import rag
+
 import database
 from auth import hash_password, verify_password, create_access_token, get_current_user
 from patient_extraction import extract_patient_info, build_patient_context_block, PatientInfo
