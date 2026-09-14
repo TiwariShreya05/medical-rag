@@ -95,6 +95,7 @@ note to consult a doctor for personal medical advice.
 Question: {query}
 
 Answer:"""
+ 
     try:
         response = gemini_client.models.generate_content(
             model="gemini-2.5-flash-lite",
