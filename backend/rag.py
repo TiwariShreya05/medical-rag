@@ -7,6 +7,7 @@ import base64
 print("NEW RAG FILE LOADED")
  
 # LOGGING SETUP
+
 logging.basicConfig(
     level=logging.INFO, 
     format="%(asctime)s | %(levelname)s | %(message)s",
