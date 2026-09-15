@@ -10,7 +10,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 from reportlab.lib.units import cm
 
-from reportlab.lib import colors  
+from reportlab.lib import colors
+
 from reportlab.platypus import ( 
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 )
