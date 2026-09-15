@@ -16,6 +16,7 @@ from reportlab.platypus import (
 
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 )
+
 from reportlab.lib.enums import TA_LEFT, TA_CENTER
 
 
