@@ -21,6 +21,7 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER
 
 
 def generate_report_pdf(report: dict) -> bytes:
+    
     buffer = io.BytesIO()
 
     doc = SimpleDocTemplate(
