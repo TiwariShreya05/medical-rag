@@ -13,6 +13,7 @@ from reportlab.lib.units import cm
 from reportlab.lib import colors
 
 from reportlab.platypus import ( 
+
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
 )
 from reportlab.lib.enums import TA_LEFT, TA_CENTER
