@@ -36,6 +36,7 @@ def generate_report_pdf(report: dict) -> bytes:
     styles = getSampleStyleSheet()
 
     # Custom styles
+    
     title_style = ParagraphStyle(
         "Title", parent=styles["Title"],
         fontSize=18, textColor=colors.HexColor("#1a1a2e"),
