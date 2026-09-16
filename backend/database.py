@@ -13,6 +13,7 @@ MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
 MYSQL_DATABASE = os.getenv("MYSQL_DATABASE", "medical_rag")
 
 #  prints AFTER variables are defined
+
 print("MYSQL_USER =", MYSQL_USER)
 print("MYSQL_PASSWORD =", repr(MYSQL_PASSWORD)) 
 print("MYSQL_DATABASE =", MYSQL_DATABASE)
