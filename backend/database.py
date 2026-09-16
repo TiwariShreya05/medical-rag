@@ -111,6 +111,7 @@ def create_user(username: str, password_hash: str):
             "INSERT INTO users (username, password_hash) VALUES (%s, %s)",
             (username, password_hash),
         )
+        
         conn.commit()
         new_id = cur.lastrowid
         cur.close()
