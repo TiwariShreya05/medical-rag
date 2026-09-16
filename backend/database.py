@@ -25,6 +25,7 @@ def _connect(use_database=True):
         "user": MYSQL_USER,
         "password": MYSQL_PASSWORD,
     }
+    
     if use_database:
         config["database"] = MYSQL_DATABASE
     return mysql.connector.connect(**config)
