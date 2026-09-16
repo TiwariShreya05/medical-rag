@@ -54,6 +54,7 @@ def init_db():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    
     cur.execute("""
         CREATE TABLE IF NOT EXISTS reports (
             id INT AUTO_INCREMENT PRIMARY KEY,
