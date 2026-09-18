@@ -127,6 +127,7 @@ def generate_report_pdf(report: dict) -> bytes:
                 ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
                 ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
                 ("FONTSIZE", (0, 0), (-1, -1), 9),
+                
                 ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#dddddd")),
                 ("ROWBACKGROUND", (1, 0), (-1, -1), [colors.white, colors.HexColor("#fafafa")]),
                 ("PADDING", (0, 0), (-1, -1), 5),
