@@ -42,7 +42,9 @@ formatter = logging.Formatter(
 
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
+
 console_handler.setFormatter(formatter)
+
 
 file_handler = TimedRotatingFileHandler(
     filename=os.path.join(LOG_DIR, "app.log"),
