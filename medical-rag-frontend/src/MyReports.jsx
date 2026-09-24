@@ -157,6 +157,7 @@ export default function MyReports({ token }) {
               {/* Download */}
               <button
                 style={s.btn(downloadingId === r.id)}
+                
                 onClick={(e) => { e.stopPropagation(); download(r.id); }}
                 disabled={downloadingId === r.id}
               >
