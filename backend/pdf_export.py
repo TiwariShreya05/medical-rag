@@ -121,7 +121,8 @@ def generate_report_pdf(report: dict) -> bytes:
         params = _parse_thought(thought)
         if params:
             header = ["Parameter", "Value", "Unit", "Reference Range"]
-            rows = [header] + [[p["name"], p["value"], p["unit"], p["ref"]] for p in params]
+            rows = [header] + [[p["name"], p["value"], p["unit"], p["ref"]] for p in params
+                              
             param_table = Table(rows, colWidths=[5 * cm, 3 * cm, 3 * cm, 6 * cm])
             param_table.setStyle(TableStyle([
                 ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1a1a2e")),
