@@ -60,6 +60,7 @@ export default function MyReports({ token }) {
 
   const download = async (reportId) => {
     setDownloadingId(reportId);
+    
     try {
       const res = await fetch(`${BASE}/my-reports/${reportId}/download`, {
         headers: { Authorization: `Bearer ${token}` },
