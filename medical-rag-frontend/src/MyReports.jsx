@@ -114,6 +114,7 @@ export default function MyReports({ token }) {
       if (!res.ok) throw new Error();
       
       const data = await res.json();
+      
       setPreviewReport(data);
     } catch {
       setError("Could not load report preview.");
