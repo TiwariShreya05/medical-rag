@@ -43,6 +43,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
         
         .split(",")
         .map((a) => a.trim())
+        
         .filter(Boolean),
     };
     setEditing(false);
