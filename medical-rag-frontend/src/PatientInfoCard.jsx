@@ -160,6 +160,7 @@ const styles = {
     
     border: "1px solid #333",
     borderRadius: "6px",
+    
     color: "#ccc",
     padding: "6px",
     cursor: "pointer",
