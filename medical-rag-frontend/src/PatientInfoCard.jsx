@@ -214,6 +214,7 @@ const styles = {
   },
   
   confirmBtn: {
+    
     background: "#1f6f3f",
     
     border: "none",
