@@ -81,6 +81,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
         {fields.map((f) => (
       
           <div key={f.key} style={styles.fieldRow}>
+            
             <label style={styles.label}>{f.label}</label>
             {editing ? (
             
