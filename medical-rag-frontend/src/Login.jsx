@@ -15,6 +15,7 @@ export default function Login({ onAuth }) {
   const [loading, setLoading] = useState(false);
 
   const submit = async () => {
+    
     if (!username.trim() || !password) {
       setError("Enter a username and password.");
       return;
