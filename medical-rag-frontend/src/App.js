@@ -13,6 +13,7 @@ const BASE = "http://127.0.0.1:8000";
 export default function App() {
   // AUTH
   const [token, setToken] = useState();
+  
   const [username, setUsername] = useState();
 
   const handleAuth = ({ token, username }) => {
