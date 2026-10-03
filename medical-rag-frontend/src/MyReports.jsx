@@ -52,6 +52,7 @@ export default function MyReports({ token }) {
       const data = await res.json();
       setReports(data.reports || []);
     } catch {
+      
       setError("Could not load your reports.");
     }
     setLoading(false);
