@@ -154,6 +154,7 @@ export default function MyReports({ token }) {
               
               <div style={s.meta}>
                 {r.patient_info?.age ? `Age ${r.patient_info.age}` : ""}
+                
                 {r.patient_info?.age && r.created_at ? " · " : ""}
                 {r.created_at}
               </div>
