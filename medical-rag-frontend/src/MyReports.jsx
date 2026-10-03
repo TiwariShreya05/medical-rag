@@ -91,6 +91,7 @@ export default function MyReports({ token }) {
     setDeletingId(reportId);
     try {
       const res = await fetch(`${BASE}/my-reports/${reportId}`, {
+        
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
