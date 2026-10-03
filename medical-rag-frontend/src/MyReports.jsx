@@ -146,6 +146,7 @@ export default function MyReports({ token }) {
           style={s.card}
           onClick={() => openPreview(r.id)}
           onMouseEnter={e => e.currentTarget.style.borderColor = "#555"}
+          
           onMouseLeave={e => e.currentTarget.style.borderColor = "#2a2a2a"}
           
         >
