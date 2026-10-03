@@ -40,6 +40,7 @@ export default function MyReports({ token }) {
   };
 
   useEffect(() => {
+    
   const load = async () => {
     setLoading(true);
     setError("");
