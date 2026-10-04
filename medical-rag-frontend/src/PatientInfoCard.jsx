@@ -52,6 +52,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
 
   const fields = [
     { key: "name", label: "Name", type: "text" },
+    
     { key: "age", label: "Age", type: "number" },
     { key: "sex", label: "Sex", type: "select", options: ["Male", "Female", "Other"] },
     
