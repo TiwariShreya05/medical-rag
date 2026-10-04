@@ -30,6 +30,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
   };
 
   const handleConfirm = () => {
+    
     const cleaned = {
       name: form.name.trim() || null,
       age: form.age ? parseInt(form.age, 10) : null,
