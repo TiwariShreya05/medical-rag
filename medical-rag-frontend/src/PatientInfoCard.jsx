@@ -234,6 +234,7 @@ const styles = {
     cursor: "pointer",
     
     display: "flex",
+    
     alignItems: "center",
     
     gap: "6px",
