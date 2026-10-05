@@ -53,6 +53,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
         .filter(Boolean),
     };
     setEditing(false);
+    
     onConfirm(cleaned);
   };
 
