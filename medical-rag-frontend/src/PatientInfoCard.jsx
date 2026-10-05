@@ -26,6 +26,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
   });
 
   const handleChange = (field, value) => {
+    
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
