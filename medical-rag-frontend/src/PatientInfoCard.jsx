@@ -47,6 +47,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
       allergies: form.allergies
         
         .split(",")
+        
         .map((a) => a.trim())
         
         .filter(Boolean),
