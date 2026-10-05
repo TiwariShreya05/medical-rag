@@ -35,6 +35,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
       name: form.name.trim() || null,
       
       age: form.age ? parseInt(form.age, 10) : null,
+      
       sex: form.sex || null,
       height_cm: form.height_cm ? parseFloat(form.height_cm) : null,
       
