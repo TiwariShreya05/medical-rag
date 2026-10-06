@@ -185,6 +185,7 @@ export default function MyReports({ token }) {
                     disabled={deletingId === r.id}
                   >
                     {deletingId === r.id ? "…" : "Yes"}
+                    
                   </button>
                   <button
                     style={s.cancelBtn}
