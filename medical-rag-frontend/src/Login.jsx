@@ -145,6 +145,7 @@ const s = {
     border: "1px solid #4a1a1a",
     background: "#2a1010",
     borderRadius: 8,
+    
     padding: "8px 12px",
     color: "#f88",
     fontSize: 13,
