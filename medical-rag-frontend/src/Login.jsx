@@ -133,6 +133,7 @@ const s = {
     fontSize: 15,
     fontWeight: 500,
     border: "1px solid #333",
+    
     borderRadius: 8,
     background: disabled ? "#1a1a1a" : "#fff",
     color: disabled ? "#555" : "#111",
