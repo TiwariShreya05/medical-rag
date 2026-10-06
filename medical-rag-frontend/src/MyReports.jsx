@@ -341,6 +341,7 @@ const s = {
   },
   
   row: { display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 },
+  
   title: { fontSize: 15, fontWeight: 600, color: "#fff" },
   meta: { fontSize: 12, color: "#888", marginTop: 2 },
   clickHint: { fontSize: 11, color: "#555", marginTop: 4 },
