@@ -230,6 +230,7 @@ export default function MyReports({ token }) {
                 {previewReport.patient_info && (
                   <div style={s.section}>
                     <div style={s.sectionLabel}>Patient info</div>
+                    
                     <div style={s.infoGrid}>
                       {Object.entries(previewReport.patient_info)
                         .filter(([, v]) => v)
