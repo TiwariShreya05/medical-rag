@@ -286,6 +286,7 @@ export default function MyReports({ token }) {
 
                 {/* Full analysis */}
                 {previewReport.analysis && (
+                
                   <div style={s.section}>
                     <div style={s.sectionLabel}>Full analysis</div>
                     <div style={s.analysisBox}>
