@@ -143,6 +143,7 @@ export default function MyReports({ token }) {
       {reports.map((r) => (
         <div
           key={r.id}
+          
           style={s.card}
           onClick={() => openPreview(r.id)}
           onMouseEnter={e => e.currentTarget.style.borderColor = "#555"}
