@@ -179,6 +179,7 @@ export default function MyReports({ token }) {
               {/* Delete */}
               {confirmDeleteId === r.id ? (
                 <div style={s.confirmRow}>
+                  
                   <span style={s.confirmText}>Delete?</span>
                   <button
                     style={s.deleteConfirmBtn}
