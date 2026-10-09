@@ -62,6 +62,7 @@ export default function MyReports({ token }) {
 }, [token]);
 
   const download = async (reportId) => {
+    
     setDownloadingId(reportId);
     
     try {
