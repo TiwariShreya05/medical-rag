@@ -57,6 +57,7 @@ export default function MyReports({ token }) {
       setError("Could not load your reports.");
     }
     setLoading(false);
+    
   };
   load();
 }, [token]);
