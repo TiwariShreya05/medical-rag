@@ -116,6 +116,7 @@ export default function MyReports({ token }) {
     setPreviewReport(null);
     try {
       const res = await fetch(`${BASE}/my-reports/${reportId}/preview`, {
+        
         headers: { Authorization: `Bearer ${token}` },
       });
       
