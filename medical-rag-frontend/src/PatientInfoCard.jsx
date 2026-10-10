@@ -195,6 +195,7 @@ const styles = {
   
   label: {
     fontSize: "13px",
+    
     color: "#999",
   },
 
