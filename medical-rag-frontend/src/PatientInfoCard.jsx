@@ -80,6 +80,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
         
         {!editing && (
           <button style={styles.iconBtn} onClick={() => setEditing(true)}>
+            
             <Pencil size={16} />
           </button>
         )}
