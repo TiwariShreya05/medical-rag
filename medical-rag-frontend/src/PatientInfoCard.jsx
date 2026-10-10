@@ -100,6 +100,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
                   style={styles.input}
                   
                   value={form[f.key]}
+                  
                   onChange={(e) => handleChange(f.key, e.target.value)}
                 >
                   <option value="">Select</option>
