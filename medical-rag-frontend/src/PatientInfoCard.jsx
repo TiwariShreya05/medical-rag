@@ -117,6 +117,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
                   value={form[f.key]}
                   
                   onChange={(e) => handleChange(f.key, e.target.value)}
+                  
                   placeholder="Not detected"
                 />
               )
