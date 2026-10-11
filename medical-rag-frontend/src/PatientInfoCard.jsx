@@ -126,6 +126,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
               )
             ) : (
               <span style={styles.value}>{form[f.key] || "—"}</span>
+            
             )}
           </div>
         ))}
