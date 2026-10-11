@@ -151,6 +151,7 @@ const styles = {
   card: {
     background: "#0a0a0a",
     border: "1px solid #2a2a2a",
+    
     borderRadius: "10px",
     padding: "20px",
     
