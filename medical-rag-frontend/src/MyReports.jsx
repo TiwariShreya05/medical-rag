@@ -112,6 +112,7 @@ export default function MyReports({ token }) {
   };
 
   const openPreview = async (reportId) => {
+    
     setPreviewLoading(true);
     setPreviewReport(null);
     try {
