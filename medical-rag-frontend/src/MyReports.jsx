@@ -50,6 +50,7 @@ export default function MyReports({ token }) {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error();
+      
       const data = await res.json();
       setReports(data.reports || []);
     } catch {
