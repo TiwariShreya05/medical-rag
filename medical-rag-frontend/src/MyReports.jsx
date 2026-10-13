@@ -80,6 +80,7 @@ export default function MyReports({ token }) {
       const a = document.createElement("a");
       a.href = url;
       a.download = `report_${reportId}.pdf`;
+      
       document.body.appendChild(a);
       a.click();
       a.remove();
