@@ -192,6 +192,7 @@ const styles = {
   
   grid: {
     display: "grid",
+    
     gridTemplateColumns: "1fr 1fr",
     gap: "14px",
   },
