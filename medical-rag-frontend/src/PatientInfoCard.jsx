@@ -218,6 +218,7 @@ const styles = {
     borderRadius: "6px",
     
     color: "#f5f5f5",
+    
     padding: "8px 10px",
     fontSize: "15px",
   },
