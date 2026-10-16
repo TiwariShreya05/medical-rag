@@ -152,6 +152,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
 }
 
 const styles = {
+  
   card: {
     background: "#0a0a0a",
     border: "1px solid #2a2a2a",
