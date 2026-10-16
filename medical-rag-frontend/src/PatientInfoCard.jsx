@@ -134,6 +134,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
       </div>
 
       {editing && (
+      
         <div style={styles.actions}>
           
           <button style={styles.confirmBtn} onClick={handleConfirm}>
