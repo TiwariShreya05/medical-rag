@@ -194,6 +194,7 @@ export default function MyReports({ token }) {
                     style={s.deleteConfirmBtn}
                     
                     onClick={(e) => { e.stopPropagation(); deleteReport(r.id); }}
+                    
                     disabled={deletingId === r.id}
                   >
                     {deletingId === r.id ? "…" : "Yes"}
