@@ -178,6 +178,7 @@ export default function MyReports({ token }) {
                 style={s.btn(downloadingId === r.id)}
                 
                 onClick={(e) => { e.stopPropagation(); download(r.id); }}
+                
                 disabled={downloadingId === r.id}
               >
                 {downloadingId === r.id ? "Preparing…" : "Download PDF"}
