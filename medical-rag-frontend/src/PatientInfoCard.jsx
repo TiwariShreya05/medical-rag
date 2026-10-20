@@ -98,6 +98,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
             {editing ? (
             
               f.type === "select" ? (
+                
                 <select
                   style={styles.input}
                   
