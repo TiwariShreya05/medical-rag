@@ -106,6 +106,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
                   onChange={(e) => handleChange(f.key, e.target.value)}
                 >
                   <option value="">Select</option>
+                  
                   {f.options.map((o) => (
                     <option key={o} value={o}>
                       
