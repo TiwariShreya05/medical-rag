@@ -317,6 +317,7 @@ export default function MyReports({ token }) {
                     const sources = typeof previewReport.sources === "string"
                       ? JSON.parse(previewReport.sources)
                       : previewReport.sources;
+                    
                     return sources.length > 0 ? (
                       <div style={s.section}>
                         <div style={s.sectionLabel}>Sources</div>
