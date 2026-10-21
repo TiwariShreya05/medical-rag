@@ -397,6 +397,7 @@ const s = {
   },
   cancelBtn: {
     padding: "5px 10px", fontSize: 12,
+    
     border: "1px solid #333", borderRadius: 6,
     background: "transparent", color: "#aaa", cursor: "pointer",
   },
