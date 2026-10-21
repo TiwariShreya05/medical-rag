@@ -448,6 +448,7 @@ const s = {
   
   pill: {
     display: "inline-block", padding: "3px 10px", borderRadius: 4,
+    
     fontSize: 12, background: "#111", border: "1px solid #2a2a2a", color: "#fff",
   },
   
