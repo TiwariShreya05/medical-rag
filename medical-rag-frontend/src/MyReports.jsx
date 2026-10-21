@@ -436,6 +436,7 @@ const s = {
   infoGrid: { display: "flex", flexDirection: "column", gap: 6 },
   
   infoRow: { display: "flex", gap: 12, fontSize: 14 },
+  
   infoKey: { color: "#888", width: 120, flexShrink: 0, textTransform: "capitalize" },
   infoVal: { color: "#fff" },
   preText: {
