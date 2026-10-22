@@ -355,6 +355,7 @@ const s = {
     border: "1px solid #2a2a2a",
     borderRadius: 10,
     padding: "14px 18px",
+    
     marginBottom: 12,
     background: "#1a1a1a",
     cursor: "pointer",
