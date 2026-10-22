@@ -322,6 +322,7 @@ export default function MyReports({ token }) {
                     return sources.length > 0 ? (
                       <div style={s.section}>
                         <div style={s.sectionLabel}>Sources</div>
+                        
                         {sources.map((src, i) => (
                           <div key={i} style={s.sourceRow}>
                             {src.term} — {src.file?.split("\\").pop() ?? "Unknown"}, p.{(src.page ?? 0) + 1}
