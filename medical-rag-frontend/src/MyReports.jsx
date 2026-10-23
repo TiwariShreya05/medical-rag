@@ -418,6 +418,7 @@ const s = {
   },
   modal: {
     background: "#1a1a1a", border: "1px solid #2a2a2a",
+    
     borderRadius: 12, width: "100%", maxWidth: 640,
     maxHeight: "85vh", display: "flex", flexDirection: "column",
     overflow: "hidden",
