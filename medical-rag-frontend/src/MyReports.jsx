@@ -447,6 +447,7 @@ const s = {
   infoRow: { display: "flex", gap: 12, fontSize: 14 },
   
   infoKey: { color: "#888", width: 120, flexShrink: 0, textTransform: "capitalize" },
+  
   infoVal: { color: "#fff" },
   preText: {
     fontSize: 13, color: "#ccc", lineHeight: 1.7,
