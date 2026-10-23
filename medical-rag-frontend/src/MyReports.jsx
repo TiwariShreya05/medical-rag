@@ -386,6 +386,7 @@ const s = {
     fontWeight: 500,
     border: "1px solid #4a1a1a",
     borderRadius: 7,
+    
     background: "transparent",
     color: "#f87171",
     cursor: "pointer",
