@@ -436,6 +436,7 @@ const s = {
   section: { marginBottom: 24 },
   sectionLabel: {
     fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
+    
     textTransform: "uppercase", color: "#888", marginBottom: 10,
   },
   infoGrid: { display: "flex", flexDirection: "column", gap: 6 },
