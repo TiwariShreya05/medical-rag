@@ -113,6 +113,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
                       
                       {o}
                     </option>
+                  
                   ))}
                 </select>
               ) : (
