@@ -222,6 +222,7 @@ const styles = {
     background: "#161616",
     
     border: "1px solid #333",
+    
     borderRadius: "6px",
     
     color: "#f5f5f5",
