@@ -164,6 +164,7 @@ const styles = {
     border: "1px solid #2a2a2a",
     
     borderRadius: "10px",
+    
     padding: "20px",
     
     marginBottom: "20px",
