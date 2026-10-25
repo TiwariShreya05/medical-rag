@@ -55,6 +55,7 @@ export default function PatientInfoCard({ patientInfo, onConfirm }) {
     setEditing(false);
     
     onConfirm(cleaned);
+    
   };
 
   const fields = [
