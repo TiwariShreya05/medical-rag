@@ -428,6 +428,7 @@ const s = {
   },
   modalHeader: {
     display: "flex", justifyContent: "space-between", alignItems: "center",
+    
     padding: "16px 20px", borderBottom: "1px solid #2a2a2a",
     flexShrink: 0,
   },
