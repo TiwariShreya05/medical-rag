@@ -269,6 +269,7 @@ export default function MyReports({ token }) {
                 {previewReport.thought && (
                   <div style={s.section}>
                     <div style={s.sectionLabel}>Parameters found</div>
+                    
                     <div style={s.preText}>{previewReport.thought}</div>
                   </div>
                 )}
