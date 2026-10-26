@@ -228,6 +228,7 @@ export default function MyReports({ token }) {
       
         <div style={s.overlay} onClick={closePreview}>
           <div style={s.modal} onClick={(e) => e.stopPropagation()}>
+            
             <div style={s.modalHeader}>
               
               <span style={s.modalTitle}>
