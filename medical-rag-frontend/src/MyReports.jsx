@@ -232,6 +232,7 @@ export default function MyReports({ token }) {
             <div style={s.modalHeader}>
               
               <span style={s.modalTitle}>
+                
                 {previewReport
                   ? previewReport.patient_info?.name || previewReport.filename || "Report"
                   : "Loading preview…"}
