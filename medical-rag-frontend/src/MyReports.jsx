@@ -296,6 +296,7 @@ export default function MyReports({ token }) {
                         <div style={s.sectionLabel}>Searched for</div>
                         
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          
                           {terms.map((t, i) => (
                             <span key={i} style={s.pill}>{t}</span>
                           ))}
