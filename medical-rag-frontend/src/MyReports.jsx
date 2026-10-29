@@ -250,6 +250,7 @@ export default function MyReports({ token }) {
 
                 {/* Patient info */}
                 {previewReport.patient_info && (
+                
                   <div style={s.section}>
                     <div style={s.sectionLabel}>Patient info</div>
                     
