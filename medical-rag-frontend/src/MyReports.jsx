@@ -64,6 +64,7 @@ export default function MyReports({ token }) {
     
   };
   load();
+    
 }, [token]);
 
   const download = async (reportId) => {
