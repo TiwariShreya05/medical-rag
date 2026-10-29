@@ -31,6 +31,7 @@ export default function MyReports({ token }) {
       });
       
       if (!res.ok) throw new Error();
+      
       const data = await res.json();
       
       setReports(data.reports || []);
