@@ -241,6 +241,7 @@ export default function MyReports({ token }) {
                 
                 {previewReport
                   ? previewReport.patient_info?.name || previewReport.filename || "Report"
+                  
                   : "Loading preview…"}
               </span>
               <button style={s.closeBtn} onClick={closePreview}>✕</button>
