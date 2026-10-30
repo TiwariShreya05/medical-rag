@@ -173,6 +173,7 @@ export default function MyReports({ token }) {
                 
                 {r.patient_info?.age && r.created_at ? " · " : ""}
                 {r.created_at}
+                
               </div>
               <div style={s.clickHint}>Click to preview</div>
             </div>
