@@ -231,6 +231,7 @@ export default function MyReports({ token }) {
       {(previewLoading || previewReport) && (
       
         <div style={s.overlay} onClick={closePreview}>
+          
           <div style={s.modal} onClick={(e) => e.stopPropagation()}>
             
             <div style={s.modalHeader}>
