@@ -309,6 +309,7 @@ export default function MyReports({ token }) {
                           
                           {terms.map((t, i) => (
                             <span key={i} style={s.pill}>{t}</span>
+                        
                           ))}
                         </div>
                       </div>
