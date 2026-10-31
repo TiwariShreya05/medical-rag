@@ -176,6 +176,7 @@ export default function MyReports({ token }) {
                 
               </div>
               <div style={s.clickHint}>Click to preview</div>
+              
             </div>
 
             <div style={s.btnGroup}>
