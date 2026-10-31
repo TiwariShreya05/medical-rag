@@ -208,6 +208,7 @@ export default function MyReports({ token }) {
                     
                   </button>
                   <button
+                    
                     style={s.cancelBtn}
                     
                     onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
