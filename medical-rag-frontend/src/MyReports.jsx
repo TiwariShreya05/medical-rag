@@ -189,6 +189,7 @@ export default function MyReports({ token }) {
                 disabled={downloadingId === r.id}
               >
                 {downloadingId === r.id ? "Preparing…" : "Download PDF"}
+                
               </button>
 
               {/* Delete */}
