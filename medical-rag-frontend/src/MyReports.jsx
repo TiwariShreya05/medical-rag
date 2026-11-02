@@ -88,6 +88,7 @@ export default function MyReports({ token }) {
       document.body.appendChild(a);
       a.click();
       a.remove();
+      
       window.URL.revokeObjectURL(url);
     } catch {
       setError("Could not download that report.");
