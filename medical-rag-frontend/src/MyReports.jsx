@@ -142,6 +142,7 @@ export default function MyReports({ token }) {
 
   const closePreview = () => {
     setPreviewReport(null);
+    
     setPreviewLoading(false);
   };
 
