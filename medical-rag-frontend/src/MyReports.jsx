@@ -401,6 +401,7 @@ const s = {
     fontSize: 13,
     fontWeight: 500,
     border: "1px solid #333",
+    
     borderRadius: 7,
     background: disabled ? "#1a1a1a" : "#fff",
     color: disabled ? "#555" : "#111",
