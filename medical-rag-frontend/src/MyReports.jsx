@@ -482,6 +482,7 @@ const s = {
   preText: {
     
     fontSize: 13, color: "#ccc", lineHeight: 1.7,
+    
     whiteSpace: "pre-wrap", fontFamily: "monospace",
     background: "#111", borderRadius: 8, padding: "12px 14px",
   },
