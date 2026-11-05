@@ -365,6 +365,7 @@ export default function MyReports({ token }) {
                 <button
                   style={{ ...s.btn(downloadingId === previewReport.id), marginTop: 8, width: "100%" }}
                   onClick={() => download(previewReport.id)}
+                  
                   disabled={downloadingId === previewReport.id}
                 >
                   {downloadingId === previewReport.id ? "Preparing…" : "Download PDF"}
