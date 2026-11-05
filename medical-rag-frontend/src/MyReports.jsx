@@ -407,6 +407,7 @@ const s = {
     
     borderRadius: 7,
     background: disabled ? "#1a1a1a" : "#fff",
+    
     color: disabled ? "#555" : "#111",
     cursor: disabled ? "not-allowed" : "pointer",
     
