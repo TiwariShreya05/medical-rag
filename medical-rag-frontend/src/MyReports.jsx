@@ -409,6 +409,7 @@ const s = {
     background: disabled ? "#1a1a1a" : "#fff",
     color: disabled ? "#555" : "#111",
     cursor: disabled ? "not-allowed" : "pointer",
+    
     whiteSpace: "nowrap",
   }),
   deleteBtn: {
