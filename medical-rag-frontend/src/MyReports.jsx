@@ -298,6 +298,7 @@ export default function MyReports({ token }) {
                 {/* Abnormal values */}
                 {previewReport.observation && (
                   <div style={s.section}>
+                    
                     <div style={s.sectionLabel}>Abnormal values</div>
                     <div style={s.preText}>{previewReport.observation}</div>
                   </div>
