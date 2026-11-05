@@ -309,6 +309,7 @@ export default function MyReports({ token }) {
                   try {
                     const terms = typeof previewReport.search_terms === "string"
                       ? JSON.parse(previewReport.search_terms)
+                      
                       : previewReport.search_terms;
                     return terms.length > 0 ? (
                       
