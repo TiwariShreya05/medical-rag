@@ -334,6 +334,7 @@ export default function MyReports({ token }) {
                     <div style={s.sectionLabel}>Full analysis</div>
                     
                     <div style={s.analysisBox}>
+                      
                       <ReactMarkdown>{previewReport.analysis}</ReactMarkdown>
                     </div>
                   </div>
