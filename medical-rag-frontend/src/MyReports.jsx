@@ -472,6 +472,7 @@ const s = {
   modalTitle: { fontSize: 16, fontWeight: 600, color: "#fff" },
   closeBtn: {
     background: "none", border: "none", color: "#888",
+    
     fontSize: 18, cursor: "pointer", padding: "0 4px",
   },
   modalBody: { overflowY: "auto", padding: "20px", flex: 1 },
