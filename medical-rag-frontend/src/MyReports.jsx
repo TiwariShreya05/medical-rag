@@ -432,6 +432,7 @@ const s = {
   confirmText: { fontSize: 13, color: "#f87171" },
   deleteConfirmBtn: {
     padding: "5px 10px", fontSize: 12, fontWeight: 600,
+    
     border: "1px solid #4a1a1a", borderRadius: 6,
     background: "#4a1a1a", color: "#f87171", cursor: "pointer",
   },
