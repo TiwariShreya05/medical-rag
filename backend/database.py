@@ -4,6 +4,7 @@ import json
 
 import mysql.connector 
 from contextlib import contextmanager
+
 from dotenv import load_dotenv
 
 load_dotenv()
