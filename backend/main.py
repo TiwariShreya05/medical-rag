@@ -240,6 +240,7 @@ def chat_stream(query: str = Query(...), current_user: dict = Depends(get_curren
 
 # NON-STREAMING (keep for fallback)
 @app.post("/analyze-report")
+
 async def analyze_report(file: UploadFile = File(...)):
     logger.info(f"POST /analyze-report | filename={file.filename} | content_type={file.content_type}")
     try:
