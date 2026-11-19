@@ -231,6 +231,7 @@ def chat_stream(query: str = Query(...), current_user: dict = Depends(get_curren
                 sources.append({"page": c["page"], "file": c["source_file"]})
 
         logger.info(f"Stream complete | sources_returned={len(sources)} | source_type={source_type}")
+        
         yield f"data: {json.dumps({'type':'done','sources':sources,'retrieval_details':context,'source_type':source_type})}\n\n"
 
     return StreamingResponse(generate(), media_type="text/event-stream")
