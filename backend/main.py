@@ -149,6 +149,7 @@ def create_db():
         chunks = rag.build_vector_db()
         logger.info(f"Vector DB built successfully | chunks_created={chunks}")
         return {"status": "success", "chunks_created": chunks}
+        
     except Exception as e:
         logger.error(f"Vector DB build failed | error={e}", exc_info=True)
         return {"status": "failed", "error": str(e)}
