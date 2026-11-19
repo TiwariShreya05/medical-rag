@@ -107,6 +107,7 @@ class LoginRequest(BaseModel):
 @app.post("/signup")
 def signup(req: SignupRequest):
     logger.info(f"POST /signup | username={req.username}")
+    
     if len(req.username.strip()) < 3:
         raise HTTPException(status_code=400, detail="Username must be at least 3 characters.")
     if len(req.password) < 6:
