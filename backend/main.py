@@ -118,6 +118,7 @@ def signup(req: SignupRequest):
         raise HTTPException(status_code=400, detail="That username is already taken.")
 
     password_hash = hash_password(req.password)
+    
     database.create_user(req.username, password_hash)
     logger.info(f"User created | username={req.username}")
 
