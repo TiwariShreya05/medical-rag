@@ -130,6 +130,7 @@ def signup(req: SignupRequest):
 def login(req: LoginRequest):
     logger.info(f"POST /login | username={req.username}")
     user = database.get_user_by_username(req.username)
+    
     if not user or not verify_password(req.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Incorrect username or password.")
 
