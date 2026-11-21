@@ -30,6 +30,7 @@ def _connect(use_database=True):
     config = {
         "host": MYSQL_HOST,
         "port": MYSQL_PORT,
+        
         "user": MYSQL_USER,
         "password": MYSQL_PASSWORD,
     }
