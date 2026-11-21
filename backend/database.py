@@ -73,6 +73,7 @@ def init_db():
             thought TEXT,
             observation TEXT,
             search_terms TEXT,
+            
             analysis TEXT,
             sources TEXT,
             extraction_method TEXT,
