@@ -37,6 +37,7 @@ def _connect(use_database=True):
     
     if use_database:
         config["database"] = MYSQL_DATABASE
+        
     return mysql.connector.connect(**config)
 
 def get_db_connection():
